@@ -1,0 +1,7 @@
+# Add this block to your Codex MCP configuration after installing Node.js 20+
+# and running `npm install` in the server directory.
+[mcp_servers.weam_revit_ai]
+command = "node"
+args = ["C:\\path\\to\\WEAM.Revit.AI\\server\\src\\index.js"]
+default_tools_approval_mode = "writes"
+tool_timeout_sec = 320

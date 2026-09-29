@@ -1,0 +1,26 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net8.0-windows</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <LangVersion>latest</LangVersion>
+    <AssemblyName>WEAM.Revit.AI</AssemblyName>
+    <RootNamespace>WEAM.Revit.AI</RootNamespace>
+    <Version>0.9.3</Version>
+    <AssemblyVersion>0.9.3.0</AssemblyVersion>
+    <Revit2026Dir Condition="'$(Revit2026Dir)' == ''">C:\Program Files\Autodesk\Revit 2026</Revit2026Dir>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Include="Assets\weam-ai.png" />
+    <FrameworkReference Include="Microsoft.WindowsDesktop.App" />
+    <Reference Include="RevitAPI">
+      <HintPath>$(Revit2026Dir)\RevitAPI.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="RevitAPIUI">
+      <HintPath>$(Revit2026Dir)\RevitAPIUI.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+  </ItemGroup>
+</Project>
