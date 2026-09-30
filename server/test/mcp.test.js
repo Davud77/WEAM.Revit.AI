@@ -7,6 +7,9 @@ import { registerHostedTools } from '../src/hosted-tools.js';
 import { registerAnnotationTools } from '../src/annotation-tools.js';
 import { registerGraphicsTools } from '../src/graphics-tools.js';
 import { registerSheetTools } from '../src/sheet-tools.js';
+import { registerRoofTools } from '../src/roof-tools.js';
+import { registerMepTools } from '../src/mep-tools.js';
+import { registerStructureTools } from '../src/structure-tools.js';
 
 test('MCP initialize/list and C# dispatcher expose matching tool contracts', async t => {
   const child = spawn(process.execPath, [fileURLToPath(new URL('../src/index.js', import.meta.url))], { stdio: ['pipe', 'pipe', 'pipe'], windowsHide: true });
@@ -34,7 +37,7 @@ test('MCP initialize/list and C# dispatcher expose matching tool contracts', asy
     child.stdin.write(JSON.stringify({ jsonrpc: '2.0', id, method, params }) + '\n');
   });
   const initialized = await rpc('initialize', { protocolVersion: '2025-11-25', capabilities: {}, clientInfo: { name: 'weam-tests', version: '1' } });
-  assert.equal(initialized.result.serverInfo.version, '0.9.3');
+  assert.equal(initialized.result.serverInfo.version, '0.9.6');
   child.stdin.write(JSON.stringify({ jsonrpc: '2.0', method: 'notifications/initialized' }) + '\n');
   const listed = await rpc('tools/list', {});
   const tools = listed.result.tools;
@@ -54,9 +57,42 @@ test('MCP initialize/list and C# dispatcher expose matching tool contracts', asy
 });
 
 const contracts = new Map();
-for (const registrar of [registerHostedTools, registerAnnotationTools, registerGraphicsTools, registerSheetTools])
+for (const registrar of [registerHostedTools, registerAnnotationTools, registerGraphicsTools, registerSheetTools, registerRoofTools, registerMepTools, registerStructureTools])
   registrar((name, description, schema, annotations) => contracts.set(name, { schema, annotations }));
 const parse = (name, args) => contracts.get(name).schema.safeParse(args).success;
+
+test('roofs and sections reject degenerate geometry before bridge access', () => {
+  const roof={roofTypeId:1,levelId:2,minX:0,maxX:12,minY:0,maxY:8,offsetMeters:3.15,slopeDegrees:30,ridgeAxis:'x',attachWallIds:[3,4]};
+  assert.ok(parse('preview_create_roof',roof));
+  for(const changes of [{maxX:0},{slopeDegrees:0},{slopeDegrees:90},{ridgeAxis:'z'},{attachWallIds:[3,3]},{offsetMeters:Infinity}])
+    assert.equal(parse('preview_create_roof',{...roof,...changes}),false);
+  const section={name:'Section',xMeters:0,yMeters:0,bottomMeters:-1,topMeters:7,widthMeters:15,depthMeters:10,directionX:0,directionY:1};
+  assert.ok(parse('preview_create_sections',{views:[section]}));
+  for(const changes of [{topMeters:-2},{directionY:0},{depthMeters:0}])
+    assert.equal(parse('preview_create_sections',{views:[{...section,...changes}]}),false);
+});
+
+test('MEP contracts require a valid segment and matching size shape', () => {
+  const point = (x) => ({ xMeters: x, yMeters: 0, zMeters: 2 });
+  const pipe = { kind: 'pipe', typeId: 1, systemTypeId: 2, levelId: 3,
+    start: point(0), end: point(2), diameterMeters: 0.05 };
+  assert.ok(parse('preview_create_mep', { segments: [pipe] }));
+  assert.ok(parse('preview_create_mep', { segments: [{ ...pipe, kind: 'duct',
+    diameterMeters: undefined, widthMeters: 0.4, heightMeters: 0.2 }] }));
+  for (const bad of [{ end: point(0) }, { diameterMeters: 0 },
+    { widthMeters: 0.2 }, { kind: 'duct', widthMeters: 0.2, heightMeters: 0.2 }])
+    assert.equal(parse('preview_create_mep', { segments: [{ ...pipe, ...bad }] }), false);
+});
+
+test('beam system and phase contracts reject invalid layouts and duplicate views', () => {
+  const system = { levelId: 1, beamTypeId: 2, minX: 0, maxX: 10, minY: 0, maxY: 8,
+    beamDirection: 'x', spacingMeters: 0.6 };
+  assert.ok(parse('preview_create_beam_systems', { systems: [system] }));
+  assert.equal(parse('preview_create_beam_systems', { systems: [{ ...system, maxX: 0 }] }), false);
+  assert.equal(parse('preview_create_beam_systems', { systems: [{ ...system, spacingMeters: 0 }] }), false);
+  assert.ok(parse('preview_set_view_phase', { phaseId: 1, viewIds: [2, 3] }));
+  assert.equal(parse('preview_set_view_phase', { phaseId: 1, viewIds: [2, 2] }), false);
+});
 
 test('sheet layout rejects incomplete views and reversed crop boxes', () => {
   const view={sourceViewId:1,viewName:'Plan A3',scale:50,centerXmm:200,centerYmm:165};

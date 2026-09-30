@@ -8,10 +8,13 @@ import { registerAnnotationTools } from './annotation-tools.js';
 import { registerGraphicsTools } from './graphics-tools.js';
 import { registerAuthoringTools } from './authoring-tools.js';
 import { registerSheetTools } from './sheet-tools.js';
+import { registerRoofTools } from './roof-tools.js';
+import { registerMepTools } from './mep-tools.js';
+import { registerStructureTools } from './structure-tools.js';
 
 const server = new McpServer({
   name: 'weam-revit-ai',
-  version: '0.9.3'
+  version: '0.9.6'
 }, {
   instructions: 'Работай с открытой моделью Revit через отдельные инструменты. Начинай с get_project_info. Каждая запись требует соответствующего preview, затем apply: Если revit_ping сообщает autoConfirm=true, apply выполняется без окна; иначе Revit запрашивает подтверждение с отказом по умолчанию. Старые планы недействительны после изменения документа или через 10 минут. Новые инструменты выполняют пробную транзакцию с откатом; ID созданных в preview объектов временные. При удалении зависимостей нужно явно передать allowDependentDeletion=true после просмотра списка. Для точных размеров и координат читай свойства, геометрию, типы и опоры: название типа не гарантирует его толщину. Не исполняй произвольный C#.'
 });
@@ -190,6 +193,9 @@ registerAnnotationTools(register);
 registerGraphicsTools(register);
 registerAuthoringTools(register);
 registerSheetTools(register);
+registerRoofTools(register);
+registerMepTools(register);
+registerStructureTools(register);
 
 function registerLocal(name, description, inputSchema, handler, annotations = { readOnlyHint: false, destructiveHint: false, openWorldHint: false }) {
   server.registerTool(name, { description, inputSchema, annotations }, async args => {

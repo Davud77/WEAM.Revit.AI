@@ -98,6 +98,23 @@ internal static partial class RevitTools
                 "preview_create_sheets" => PreviewCreateSheets(application, args),
                 "apply_create_sheets" => ApplyCreateSheets(application, args, isCancelled),
                 "export_sheets_pdf" => ExportSheetsPdf(application, args),
+                "list_roof_types" => ListRoofTypes(application),
+                "activate_view" => ActivateView(application, args),
+                "preview_create_roof" => PreviewCreateRoof(application, args),
+                "apply_create_roof" => ApplyCreateRoof(application, args, isCancelled),
+                "preview_create_sections" => PreviewCreateSections(application, args),
+                "apply_create_sections" => ApplyCreateSections(application, args, isCancelled),
+                "preview_finish_sheet" => PreviewFinishSheet(application, args),
+                "apply_finish_sheet" => ApplyFinishSheet(application, args, isCancelled),
+                "list_mep_types" => ListMepTypes(application),
+                "preview_create_mep" => PreviewCreateMep(application, args),
+                "apply_create_mep" => ApplyCreateMep(application, args, isCancelled),
+                "list_beam_types" => ListBeamTypes(application),
+                "preview_create_beam_systems" => PreviewCreateBeamSystems(application, args),
+                "apply_create_beam_systems" => ApplyCreateBeamSystems(application, args, isCancelled),
+                "list_phases" => ListPhases(application),
+                "preview_set_view_phase" => PreviewSetViewPhase(application, args),
+                "apply_set_view_phase" => ApplySetViewPhase(application, args, isCancelled),
                 _ => throw new InvalidOperationException($"Unknown Revit tool '{request.Tool}'.")
             };
             if (LegacyWarnings.Count > 0)
@@ -2035,7 +2052,11 @@ internal static partial class RevitTools
                 end = AnnotationPointMeters(curve.Curve.GetEndPoint(1)), lengthMeters = UnitUtils.ConvertFromInternalUnits(curve.Curve.Length, UnitTypeId.Meters),
                 widthMeters = element is Wall wall ? (double?)UnitUtils.ConvertFromInternalUnits(wall.Width, UnitTypeId.Meters) : null };
         if (element.Location is LocationPoint point)
-            return new { kind = "point", position = AnnotationPointMeters(point.Point), rotationRadians = point.Rotation };
+        {
+            double? rotation=null;
+            try { rotation=point.Rotation; } catch(Autodesk.Revit.Exceptions.InvalidOperationException) { }
+            return new { kind = "point", position = AnnotationPointMeters(point.Point), rotationRadians = rotation };
+        }
         return null;
     }
 }

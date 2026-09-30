@@ -25,9 +25,13 @@ public sealed class PluginApplication : IExternalApplication
             button.LargeImage = RibbonAssets.Icon(32);
             button.ToolTip = "Подключение и восстановление локального MCP-моста WEAM AI";
             panel.AddItem(button);
-            panel.AddItem(new PushButtonData("WeamAutoConfirm", "Авто\nподтверждение",
+            var autoConfirmButton = new PushButtonData("WeamAutoConfirm", "Авто\nподтверждение",
                 Assembly.GetExecutingAssembly().Location,
-                typeof(Commands.ToggleAutoConfirmCommand).FullName!));
+                typeof(Commands.ToggleAutoConfirmCommand).FullName!);
+            autoConfirmButton.Image = RibbonAssets.AutoConfirmIcon(16);
+            autoConfirmButton.LargeImage = RibbonAssets.AutoConfirmIcon(32);
+            autoConfirmButton.ToolTip = "Включить или выключить автоматическое подтверждение локальных MCP-команд";
+            panel.AddItem(autoConfirmButton);
             // Keep the ribbon available if another Revit process currently owns
             // the port. The connection button can retry once the port is free.
             try { BridgeService.Start(); }
