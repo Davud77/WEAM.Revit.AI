@@ -6,8 +6,8 @@
     <LangVersion>latest</LangVersion>
     <AssemblyName>WEAM.Revit.AI</AssemblyName>
     <RootNamespace>WEAM.Revit.AI</RootNamespace>
-    <Version>0.9.6</Version>
-    <AssemblyVersion>0.9.6.0</AssemblyVersion>
+    <Version>0.9.8</Version>
+    <AssemblyVersion>0.9.8.0</AssemblyVersion>
     <Revit2026Dir Condition="'$(Revit2026Dir)' == ''">C:\Program Files\Autodesk\Revit 2026</Revit2026Dir>
   </PropertyGroup>
 

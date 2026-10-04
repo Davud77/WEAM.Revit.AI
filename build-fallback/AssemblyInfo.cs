@@ -3,10 +3,10 @@ using System.Runtime.Versioning;
 
 [assembly: AssemblyCompany("WEAM.Revit.AI")]
 [assembly: AssemblyConfiguration("Release")]
-[assembly: AssemblyFileVersion("0.9.6.0")]
-[assembly: AssemblyInformationalVersion("0.9.6")]
+[assembly: AssemblyFileVersion("0.9.8.0")]
+[assembly: AssemblyInformationalVersion("0.9.8")]
 [assembly: AssemblyProduct("WEAM.Revit.AI")]
 [assembly: AssemblyTitle("WEAM.Revit.AI")]
-[assembly: AssemblyVersion("0.9.6.0")]
+[assembly: AssemblyVersion("0.9.8.0")]
 [assembly: TargetPlatform("Windows7.0")]
 [assembly: SupportedOSPlatform("Windows7.0")]

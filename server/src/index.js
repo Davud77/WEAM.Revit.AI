@@ -14,7 +14,7 @@ import { registerStructureTools } from './structure-tools.js';
 
 const server = new McpServer({
   name: 'weam-revit-ai',
-  version: '0.9.6'
+  version: '0.9.8'
 }, {
   instructions: 'Работай с открытой моделью Revit через отдельные инструменты. Начинай с get_project_info. Каждая запись требует соответствующего preview, затем apply: Если revit_ping сообщает autoConfirm=true, apply выполняется без окна; иначе Revit запрашивает подтверждение с отказом по умолчанию. Старые планы недействительны после изменения документа или через 10 минут. Новые инструменты выполняют пробную транзакцию с откатом; ID созданных в preview объектов временные. При удалении зависимостей нужно явно передать allowDependentDeletion=true после просмотра списка. Для точных размеров и координат читай свойства, геометрию, типы и опоры: название типа не гарантирует его толщину. Не исполняй произвольный C#.'
 });
@@ -40,6 +40,10 @@ const empty = z.object({});
 const elementIds = z.array(z.number().int().positive()).min(1).max(100);
 
 register('revit_ping', 'Проверить доступность локального моста и Revit. Не изменяет модель.', empty);
+register('read_documentation', 'Прочитать все листы постранично: виды и их шаблоны, размещение, спецификации с полями и строками, аннотации и их типы. Только чтение. Большие ответы сохраняйте в локальный профиль; errors и truncated означают неполное чтение.', z.object({
+  offset: z.number().int().min(0).max(100000).default(0),
+  limit: z.number().int().min(1).max(10).default(5)
+}).strict());
 register('get_project_info', 'Получить сведения об открытом проекте, активном виде и версии Revit.', empty);
 register('get_current_view_elements', 'Перечислить элементы активного вида. По умолчанию возвращает до 200 элементов.', z.object({
   category: z.string().optional(),

@@ -37,7 +37,7 @@ test('MCP initialize/list and C# dispatcher expose matching tool contracts', asy
     child.stdin.write(JSON.stringify({ jsonrpc: '2.0', id, method, params }) + '\n');
   });
   const initialized = await rpc('initialize', { protocolVersion: '2025-11-25', capabilities: {}, clientInfo: { name: 'weam-tests', version: '1' } });
-  assert.equal(initialized.result.serverInfo.version, '0.9.6');
+  assert.equal(initialized.result.serverInfo.version, '0.9.8');
   child.stdin.write(JSON.stringify({ jsonrpc: '2.0', method: 'notifications/initialized' }) + '\n');
   const listed = await rpc('tools/list', {});
   const tools = listed.result.tools;
@@ -50,6 +50,12 @@ test('MCP initialize/list and C# dispatcher expose matching tool contracts', asy
   for (const name of ['preview_place_hosted_families', 'apply_create_dimensions', 'preview_tag_rooms', 'apply_color_by_parameter'])
     assert.ok(names.includes(name), `Missing tool ${name}`);
   const deletion = tools.find(tool => tool.name === 'apply_delete_plan');
+  const documentation = tools.find(tool => tool.name === 'read_documentation');
+  assert.ok(documentation, 'Reference capture needs a native documentation reader');
+  assert.equal(documentation.annotations.readOnlyHint, true);
+  assert.equal(documentation.inputSchema.properties.limit.maximum, 10);
+  const oversized = await rpc('tools/call', { name: 'read_documentation', arguments: { offset: 0, limit: 11 } });
+  assert.ok(oversized.error || oversized.result?.isError, 'Oversized capture must be rejected before bridge access');
   assert.equal(deletion.inputSchema.properties.allowDependentDeletion.default, false);
   assert.equal(deletion.annotations.destructiveHint, true);
   const invalid = await rpc('tools/call', { name: 'preview_place_hosted_families', arguments: { instances: [] } });

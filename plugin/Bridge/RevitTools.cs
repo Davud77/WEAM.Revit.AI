@@ -95,6 +95,7 @@ internal static partial class RevitTools
                 "apply_save_project" => ApplySaveProject(application, args, isCancelled),
                 "export_view_image" => ExportViewImage(application, args),
                 "list_sheet_resources" => ListSheetResources(application),
+                "read_documentation" => ReadDocumentation(application, args),
                 "preview_create_sheets" => PreviewCreateSheets(application, args),
                 "apply_create_sheets" => ApplyCreateSheets(application, args, isCancelled),
                 "export_sheets_pdf" => ExportSheetsPdf(application, args),

@@ -21,3 +21,4 @@ snapshots/
 *.zip
 RevitAPI.dll
 RevitAPIUI.dll
+dist/
