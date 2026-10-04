@@ -12,8 +12,8 @@ internal static partial class RevitTools
     {
         var document = RequireDocument(app);
         var kind = JsonTools.GetString(args, "kind", "all");
-        if (kind is not ("all" or "linearDimensions" or "wallTags" or "roomTags"))
-            throw new ArgumentException("kind must be all, linearDimensions, wallTags or roomTags.");
+        if (kind is not ("all" or "linearDimensions" or "wallTags" or "roomTags" or "mepTags"))
+            throw new ArgumentException("kind must be all, linearDimensions, wallTags, roomTags or mepTags.");
         var types = new List<object>();
         if (kind is "all" or "linearDimensions")
             types.AddRange(new FilteredElementCollector(document).OfClass(typeof(DimensionType)).Cast<DimensionType>()
@@ -26,6 +26,12 @@ internal static partial class RevitTools
                 .OrderBy(type => type.FamilyName).ThenBy(type => type.Name)
                 .Select(type => (object)new { id = type.Id.Value, kind = entry.Item1, name = type.Name, familyName = type.FamilyName }));
         }
+        if (kind is "all" or "mepTags")
+            foreach (var entry in MepTagCategories)
+                types.AddRange(new FilteredElementCollector(document).OfCategory(entry.Tag).WhereElementIsElementType().Cast<FamilySymbol>()
+                    .OrderBy(type => type.FamilyName).ThenBy(type => type.Name)
+                    .Select(type => (object)new { id = type.Id.Value, kind = "mepTags", name = type.Name,
+                        familyName = type.FamilyName, elementCategory = entry.Element.ToString(), tagCategory = entry.Tag.ToString() }));
         return new { count = types.Count, types };
     }
 

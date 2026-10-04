@@ -79,6 +79,8 @@ internal static partial class RevitTools
                 "apply_tag_walls" => ApplyTagWalls(application, args, isCancelled),
                 "preview_tag_rooms" => PreviewTagRooms(application, args),
                 "apply_tag_rooms" => ApplyTagRooms(application, args, isCancelled),
+                "preview_tag_mep" => PreviewTagMep(application, args),
+                "apply_tag_mep" => ApplyTagMep(application, args, isCancelled),
                 "preview_element_graphics" => PreviewElementGraphics(application, args),
                 "apply_element_graphics" => ApplyElementGraphics(application, args, isCancelled),
                 "preview_color_by_parameter" => PreviewColorByParameter(application, args),

@@ -2,7 +2,7 @@ param([string]$OutputDirectory = (Join-Path $PSScriptRoot 'dist'))
 $ErrorActionPreference = 'Stop'
 $project = [xml](Get-Content -LiteralPath (Join-Path $PSScriptRoot 'plugin\WEAM.Revit.AI.csproj') -Raw)
 $version = [string]$project.Project.PropertyGroup.Version
-if ($version -ne '0.9.8') { throw 'Update installer version constants before building a new release.' }
+if ($version -ne '0.9.9') { throw 'Update installer version constants before building a new release.' }
 & (Join-Path $PSScriptRoot 'build.ps1')
 if (-not (Get-Command node -ErrorAction SilentlyContinue)) { throw 'Node.js LTS is required on the build computer.' }
 if (-not (Test-Path -LiteralPath (Join-Path $PSScriptRoot 'server\node_modules\zod'))) {
