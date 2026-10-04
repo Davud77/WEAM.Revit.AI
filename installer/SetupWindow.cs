@@ -18,7 +18,7 @@ sealed class SetupWindow : Form
         Font = new Font("Segoe UI", 10);
         var layout = new TableLayoutPanel { Dock = DockStyle.Fill, Padding = new Padding(24), ColumnCount = 1, RowCount = 10 };
         layout.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100));
-        layout.Controls.Add(new Label { Text = "WEAM.Revit.AI 0.9.8", Font = new Font(Font.FontFamily, 19, FontStyle.Bold), AutoSize = true });
+        layout.Controls.Add(new Label { Text = "WEAM.Revit.AI 0.9.9", Font = new Font(Font.FontFamily, 19, FontStyle.Bold), AutoSize = true });
         layout.Controls.Add(new Label { AutoSize = true, MaximumSize = new Size(560, 0), Text = uninstall
             ? "Удаление надстройки и её MCP-подключения. Ваши модели, снимки и настройки сохранятся. Закройте Revit и AI-клиент."
             : "Управляйте Revit через MCP. Установка для текущего пользователя; Node.js и зависимости включены. Требуется установленный Autodesk Revit 2026 x64." });

@@ -11,7 +11,7 @@ namespace WEAM.Revit.AI.Setup;
 
 static class Deployment
 {
-    public const string Version = "0.9.8";
+    public const string Version = "0.9.9";
     const string AddinId = "F0BB1CE2-6DA1-4F67-AB04-4C05F06397C4";
     const string RegistryKey = @"Software\Microsoft\Windows\CurrentVersion\Uninstall\WEAM.Revit.AI";
     static readonly string Data = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "WEAM.Revit.AI");

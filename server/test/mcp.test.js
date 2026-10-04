@@ -37,7 +37,7 @@ test('MCP initialize/list and C# dispatcher expose matching tool contracts', asy
     child.stdin.write(JSON.stringify({ jsonrpc: '2.0', id, method, params }) + '\n');
   });
   const initialized = await rpc('initialize', { protocolVersion: '2025-11-25', capabilities: {}, clientInfo: { name: 'weam-tests', version: '1' } });
-  assert.equal(initialized.result.serverInfo.version, '0.9.8');
+  assert.equal(initialized.result.serverInfo.version, '0.9.9');
   child.stdin.write(JSON.stringify({ jsonrpc: '2.0', method: 'notifications/initialized' }) + '\n');
   const listed = await rpc('tools/list', {});
   const tools = listed.result.tools;
@@ -66,6 +66,30 @@ const contracts = new Map();
 for (const registrar of [registerHostedTools, registerAnnotationTools, registerGraphicsTools, registerSheetTools, registerRoofTools, registerMepTools, registerStructureTools])
   registrar((name, description, schema, annotations) => contracts.set(name, { schema, annotations }));
 const parse = (name, args) => contracts.get(name).schema.safeParse(args).success;
+
+test('MEP tags require explicit types, unique targets and valid leader geometry', () => {
+  const target = { elementId: 10, tagTypeId: 20 };
+  const point = { xMeters: 1, yMeters: 2, zMeters: 3 };
+  assert.ok(parse('preview_tag_mep', { tags: [target] }));
+  assert.ok(parse('preview_tag_mep', { viewId: 30, tags: [{ elementId: 10 }],
+    categoryTypes: [{ category: 'OST_DuctTerminal', tagTypeId: 20 }] }));
+  assert.ok(parse('preview_tag_mep', { tags: [{ ...target, headPosition: point,
+    leaderEndPosition: point, elbowPosition: { ...point, xMeters: 2 } }] }));
+  for (const input of [
+    { tags: [] }, { tags: Array(51).fill(target) }, { tags: [target, target] },
+    { tags: [{ elementId: 10 }] }, { tags: [{ ...target, leader: false, elbowPosition: point }] },
+    { tags: [{ ...target, leader: false, leaderEndPosition: point }] },
+    { tags: [{ ...target, headPosition: point, offsetRightPaperMillimeters: 15 }] },
+    { tags: [{ ...target, headPosition: { ...point, zMeters: Infinity } }] },
+    { tags: [{ ...target, offsetUpPaperMillimeters: 101 }] },
+    { tags: [{ ...target, orientation: 'diagonal' }] },
+    { tags: [target], categoryTypes: [{ category: 'OST_Walls', tagTypeId: 20 }] },
+    { tags: [target], categoryTypes: Array(2).fill({ category: 'OST_DuctCurves', tagTypeId: 20 }) }
+  ]) assert.equal(parse('preview_tag_mep', input), false, JSON.stringify(input));
+  assert.ok(parse('list_annotation_types', { kind: 'mepTags' }));
+  assert.equal(contracts.get('apply_tag_mep').annotations.readOnlyHint, false);
+  assert.equal(parse('apply_tag_mep', {}), false);
+});
 
 test('roofs and sections reject degenerate geometry before bridge access', () => {
   const roof={roofTypeId:1,levelId:2,minX:0,maxX:12,minY:0,maxY:8,offsetMeters:3.15,slopeDegrees:30,ridgeAxis:'x',attachWallIds:[3,4]};
